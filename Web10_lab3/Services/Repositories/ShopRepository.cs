@@ -43,7 +43,9 @@ namespace Services.Repositories {
         }
 
         public void Update(int id, ShopInputDTO inputEntity) {
-            Shop entityToUpdate = db.Shops.Find(id);
+            Shop entityToUpdate = db.Shops
+                .Include(x => x.Products)
+                .First(x => x.Id == id);
             mapper.Map(inputEntity, entityToUpdate);
             CreateReferences(entityToUpdate, inputEntity);
             db.SaveChanges();
@@ -56,6 +58,7 @@ namespace Services.Repositories {
         public void Remove(int id) {
             IQueryable<Shop> entityToRemove = db.Shops.Where(x => x.Id == id);
             db.Shops.RemoveRange(entityToRemove);
+            db.SaveChanges();
         }
     }
 }

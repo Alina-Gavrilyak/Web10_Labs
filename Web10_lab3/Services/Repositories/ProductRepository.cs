@@ -46,7 +46,10 @@ namespace Services.Repositories {
         }
 
         public void Update(int id, ProductInputDTO inputEntity) {
-            Product entityToUpdate = db.Products.Find(id);
+            Product entityToUpdate = db.Products
+                .Include(x => x.Shops)
+                .Include(x => x.Warehouses)
+                .First(x => x.Id == id);
             mapper.Map(inputEntity, entityToUpdate);
             CreateReferences(entityToUpdate, inputEntity);
             db.SaveChanges();
@@ -60,6 +63,7 @@ namespace Services.Repositories {
         public void Remove(int id) {
             IQueryable<Product> entityToRemove = db.Products.Where(x => x.Id == id);
             db.Products.RemoveRange(entityToRemove);
+            db.SaveChanges();
         }
     }
 }
