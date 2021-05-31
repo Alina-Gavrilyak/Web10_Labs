@@ -61,7 +61,7 @@ namespace WebApi.Controllers {
 
             if (res.Succeeded) {
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                await emailService.SendEmailAsync(model.Email, "Confirm your email", $"Confirmation code: <b>{code}</b>");
+                emailService.SendEmail(model.Email, "Confirm your email", $"Confirmation code: <b>{code}</b>");
             }
 
             return Ok(res);
@@ -69,7 +69,7 @@ namespace WebApi.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> ConfirmEmail(ConfirmEmailModel model) {
-            var user = await userManager.FindByIdAsync(model.Email);
+            var user = await userManager.FindByEmailAsync(model.Email);
             var result = await userManager.ConfirmEmailAsync(user, model.Code);
             if (result.Succeeded)
                 return Ok(result);
@@ -84,7 +84,7 @@ namespace WebApi.Controllers {
                 return Ok();
 
             var code = await userManager.GeneratePasswordResetTokenAsync(user);
-            await emailService.SendEmailAsync(model.Email, "Reset password", $"Reset password code: <b>{code}</b>");
+            emailService.SendEmail(model.Email, "Reset password", $"Reset password code: <b>{code}</b>");
 
             return Ok();
         }

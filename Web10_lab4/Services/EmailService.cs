@@ -1,36 +1,53 @@
-﻿using MailKit.Net.Smtp;
-using Microsoft.Extensions.Options;
-using MimeKit;
+﻿using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace Contracts {
-    public class EmailService : IEmailService {
+namespace Contracts
+{
+    public class EmailService : IEmailService
+    {
         private readonly EmailServiceSettings settings;
-        public EmailService(IOptions<EmailServiceSettings> settings) {
+        public EmailService(IOptions<EmailServiceSettings> settings)
+        {
             this.settings = settings.Value;
 
         }
-        public async Task SendEmailAsync(string email, string subject, string message) {
-            var emailMessage = new MimeMessage();
+        public void SendEmail(string email, string subject, string message)
+        {
+            ServicePointManager.ServerCertificateValidationCallback =
+                delegate (object s, X509Certificate certificate,
+                    X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                { return true; };
 
-            emailMessage.From.Add(new MailboxAddress("Turnover Api", settings.SmtpUser));
-            emailMessage.To.Add(new MailboxAddress("", email));
-            emailMessage.Subject = subject;
-            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) {
-                Text = message
+            MailMessage mailMessage = new MailMessage()
+            {
+                IsBodyHtml = true,
+                Subject = subject,
+                Body = message,
+                From = new MailAddress(settings.SmtpUser)
+            };
+            mailMessage.To.Add(email);
+
+            SmtpClient smtp = new SmtpClient()
+            {
+                Host = settings.SmtpHost,
+                Port = settings.SmtpPort,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Timeout = 10000,
+                EnableSsl = true,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(settings.SmtpUser, settings.SmtpPassword),
             };
 
-            using (var client = new SmtpClient()) {
-                await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort, true);
-                await client.AuthenticateAsync(settings.SmtpUser, settings.SmtpPassword);
-                await client.SendAsync(emailMessage);
-
-                await client.DisconnectAsync(true);
-            }
+            smtp.Send(mailMessage);
         }
     }
 
-    public class EmailServiceSettings {
+    public class EmailServiceSettings
+    {
         public const string SectionKey = "EmailServiceSettings";
 
         public string SmtpHost { get; set; }
