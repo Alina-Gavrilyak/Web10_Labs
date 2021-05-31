@@ -43,6 +43,7 @@ namespace Web10_Lab2 {
                 .AddEntityFrameworkStores<TurnoverDbContext>();
 
             var mapperConfig = new MapperConfiguration(mc => {
+                mc.AddProfile(new AccountMappingProfile());
                 mc.AddProfile(new ProductMappingProfile());
                 mc.AddProfile(new RequestDeliveryMappingProfile());
                 mc.AddProfile(new ShopMappingProfile());
