@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Contracts.Repositories;
 using Contracts.Models;
 using Microsoft.AspNetCore.Authorization;
+using WebApi.Helpers;
 
 namespace WebApi.Controllers {
     [Route("api/[controller]")]
@@ -35,16 +36,19 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public int PostProduct(ProductInputDTO item) {
             return repository.Add(item);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void PutProduct(int id, ProductInputDTO product) {
             repository.Update(id, product);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void DeleteProduct(int id) {
             repository.Remove(id);
         }

@@ -38,7 +38,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("Login")]
         public async Task<IActionResult> Login(LoginModel model) {
             TurnoverUser user = await userManager.FindByNameAsync(model.UserName);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password)) {
@@ -52,7 +51,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("Register")]
         public async Task<IActionResult> Register(RegisterModel model) {
             if (model.Password != model.ConfirmPassword)
                 return BadRequest(new { message = "Password and Confirm Password do not match." });
@@ -70,7 +68,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpGet]
-        [Route("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string userId, string code) {
             var user = await userManager.FindByIdAsync(userId);
             var result = await userManager.ConfirmEmailAsync(user, code);
@@ -81,7 +78,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model) {
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null || !await userManager.IsEmailConfirmedAsync(user))
@@ -94,7 +90,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model) {
             if (model.Password != model.ConfirmPassword)
                 return BadRequest(new { message = "Password and Confirm Password do not match." });
@@ -111,8 +106,7 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("UpdateUserRoles")]
-        [Authorize(Roles = RolesHelper.AdminRole)]
+        [Authorize(Roles = RolesHelper.SystemAdminRole)]
         public async Task<IActionResult> UpdateUserRoles(UpdateUserRolesModel model) {
             TurnoverUser user = await userManager.FindByIdAsync(model.UserId.ToString());
 
@@ -125,7 +119,6 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
-        [Route("ChangePassword")]
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model) {
             if (model.NewPassword != model.ConfirmNewPassword)

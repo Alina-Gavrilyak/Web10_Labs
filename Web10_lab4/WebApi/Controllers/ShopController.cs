@@ -7,10 +7,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Contracts.Repositories;
 using Contracts.Models;
+using Microsoft.AspNetCore.Authorization;
+using WebApi.Helpers;
 
 namespace WebApi.Controllers {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ShopController : ControllerBase {
         private readonly IShopRepository repository;
 
@@ -33,16 +36,19 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public int PostShop(ShopInputDTO item) {
             return repository.Add(item);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void PutShop(int id, ShopInputDTO shop) {
             repository.Update(id, shop);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void DeleteShop(int id) {
             repository.Remove(id);
         }

@@ -7,10 +7,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Contracts.Repositories;
 using Contracts.Models;
+using Microsoft.AspNetCore.Authorization;
+using WebApi.Helpers;
 
 namespace WebApi.Controllers {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RequestDeliveryController : ControllerBase {
         private readonly IRequestDeliveryRepository repository;
 
@@ -33,16 +36,19 @@ namespace WebApi.Controllers {
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public int PostRequestDelivery(RequestDeliveryInputDTO item) {
             return repository.Add(item);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void PutRequestDelivery(int id, RequestDeliveryInputDTO requestDelivery) {
             repository.Update(id, requestDelivery);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = RolesHelper.AdminRole)]
         public void DeleteRequestDelivery(int id) {
             repository.Remove(id);
         }
