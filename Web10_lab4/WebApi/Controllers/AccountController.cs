@@ -67,10 +67,10 @@ namespace WebApi.Controllers {
             return Ok(res);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code) {
-            var user = await userManager.FindByIdAsync(userId);
-            var result = await userManager.ConfirmEmailAsync(user, code);
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailModel model) {
+            var user = await userManager.FindByIdAsync(model.Email);
+            var result = await userManager.ConfirmEmailAsync(user, model.Code);
             if (result.Succeeded)
                 return Ok(result);
             else
