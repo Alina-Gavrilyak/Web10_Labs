@@ -42,9 +42,11 @@ namespace WebApi.Controllers {
         public async Task<IActionResult> Login(LoginModel model) {
             TurnoverUser user = await userManager.FindByNameAsync(model.UserName);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password)) {
+                if (!await userManager.IsEmailConfirmedAsync(user)) 
+                    return BadRequest(new { message = "You have not confirmed the email." });
+                
                 string token = await CreateToken(user);
                 return Ok(new { token });
-
             } else
                 return BadRequest(new { message = "Username or passowrd is incorrect." });
         }
@@ -69,9 +71,8 @@ namespace WebApi.Controllers {
 
         [HttpGet]
         [Route("ConfirmEmail")]
-        [Authorize]
-        public async Task<IActionResult> ConfirmEmail(string code) {
-            var user = await userManager.FindByIdAsync(GetUserIdString());
+        public async Task<IActionResult> ConfirmEmail(string userId, string code) {
+            var user = await userManager.FindByIdAsync(userId);
             var result = await userManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
                 return Ok(result);
