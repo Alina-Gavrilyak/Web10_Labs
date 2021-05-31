@@ -19,7 +19,7 @@ using WebApi.Models;
 using WebApiModels.AccountApiModels;
 
 namespace WebApi.Controllers {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController : BaseTurnoverController {
 
