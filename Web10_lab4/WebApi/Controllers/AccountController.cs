@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebApi.Helpers;
 using WebApi.Models;
-using WebApi.Models.AccountApiModels;
+using WebApiModels.AccountApiModels;
 
 namespace WebApi.Controllers {
     [Route("api/[controller]")]
@@ -36,7 +36,6 @@ namespace WebApi.Controllers {
             this.emailService = emailService;
             this.authSettings = authSettings.Value;
         }
-
 
         [HttpPost]
         [Route("Login")]
@@ -61,11 +60,7 @@ namespace WebApi.Controllers {
             IdentityResult res = await userManager.CreateAsync(user, model.Password);
 
             if (res.Succeeded) {
-                foreach (string role in model.Roles)
-                    await userManager.AddToRoleAsync(user, role);
-
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
                 await emailService.SendEmailAsync(model.Email, "Confirm your email", $"Confirmation code: <b>{code}</b>");
             }
 
@@ -73,10 +68,41 @@ namespace WebApi.Controllers {
         }
 
         [HttpGet]
+        [Route("ConfirmEmail")]
         [Authorize]
         public async Task<IActionResult> ConfirmEmail(string code) {
             var user = await userManager.FindByIdAsync(GetUserIdString());
             var result = await userManager.ConfirmEmailAsync(user, code);
+            if (result.Succeeded)
+                return Ok(result);
+            else
+                return BadRequest(result);
+        }
+
+        [HttpPost]
+        [Route("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model) {
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null || !await userManager.IsEmailConfirmedAsync(user))
+                return Ok();
+
+            var code = await userManager.GeneratePasswordResetTokenAsync(user);
+            await emailService.SendEmailAsync(model.Email, "Reset password", $"Reset password code: <b>{code}</b>");
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model) {
+            if (model.Password != model.ConfirmPassword)
+                return BadRequest(new { message = "Password and Confirm Password do not match." });
+
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null) 
+                return Ok();
+
+            var result = await userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
                 return Ok(result);
             else
@@ -99,6 +125,7 @@ namespace WebApi.Controllers {
 
         [HttpPost]
         [Route("ChangePassword")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model) {
             if (model.NewPassword != model.ConfirmNewPassword)
                 return BadRequest(new { message = "Password and Confirm Password do not match." });
@@ -136,6 +163,5 @@ namespace WebApi.Controllers {
             string token = tokenHandler.WriteToken(securityToken);
             return token;
         }
-
     }
 }

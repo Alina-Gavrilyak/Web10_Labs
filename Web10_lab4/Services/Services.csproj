@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\DataAccessContracts\DataAccessContracts.csproj" />
     <ProjectReference Include="..\DataAccessServices\DataAccessServices.csproj" />
+    <ProjectReference Include="..\WebApiModels\WebApiModels.csproj" />
   </ItemGroup>
 
 </Project>
