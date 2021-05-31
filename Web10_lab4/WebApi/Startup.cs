@@ -40,7 +40,8 @@ namespace Web10_Lab2 {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddIdentity<TurnoverUser, TurnoverRole>()
-                .AddEntityFrameworkStores<TurnoverDbContext>();
+                .AddEntityFrameworkStores<TurnoverDbContext>()
+                .AddDefaultTokenProviders();
 
             var mapperConfig = new MapperConfiguration(mc => {
                 mc.AddProfile(new AccountMappingProfile());
