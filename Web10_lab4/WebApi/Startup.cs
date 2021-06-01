@@ -152,7 +152,8 @@ namespace Web10_Lab2 {
                 UserName = "AdminUser",
                 FirstName = "FirstName",
                 LastName = "LastName",
-                Email = "admin@rs.com"
+                Email = "admin@rs.com",
+                EmailConfirmed = true
             };
 
             TurnoverUser existingAdminUser = await userManager.FindByNameAsync(adminUser.UserName);
